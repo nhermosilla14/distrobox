@@ -15,7 +15,7 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-ASSEMBLE" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-ASSEMBLE" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -37,7 +37,7 @@ specified using the \f[V]--file\f[R] flag.
 .IP
 .nf
 \f[C]
---file:         path to the distrobox manifest/ini file
+--file:         path or URL to the distrobox manifest/ini file
 --name/-n:      run against a single entry in the manifest/ini file
 --replace/-R:       replace already existing distroboxes with matching names
 --dry-run/-d:       only print the container manager command generated
@@ -99,6 +99,14 @@ distrobox assemble create --file /my/custom/path.ini
 \f[R]
 .fi
 .PP
+Or even specify a remote file, by using an URL:
+.IP
+.nf
+\f[C]
+distrobox-assemble create --file https://raw.githubusercontent.com/89luca89/dotfiles/master/distrobox.ini
+\f[R]
+.fi
+.PP
 \f[B]Replace\f[R]
 .PP
 By default, \f[V]distrobox assemble\f[R] will replace a container only
@@ -146,125 +154,18 @@ actually running them.
 .PP
 This is a list of available options with the corresponding type:
 .PP
-.TS
-tab(@);
-l l.
-T{
-Flag Name
-T}@T{
-Type
-T}
-_
-T{
-additional_flags
-T}@T{
-string
-T}
-T{
-additional_packages
-T}@T{
-string
-T}
-T{
-home
-T}@T{
-string
-T}
-T{
-image
-T}@T{
-string
-T}
-T{
-init_hooks
-T}@T{
-string
-T}
-T{
-pre_init_hooks
-T}@T{
-string
-T}
-T{
-volume
-T}@T{
-string
-T}
-T{
-exported_apps
-T}@T{
-string
-T}
-T{
-exported_bins
-T}@T{
-string
-T}
-T{
-exported_bins_path
-T}@T{
-string
-T}
-T{
-entry
-T}@T{
-bool
-T}
-T{
-start_now
-T}@T{
-bool
-T}
-T{
-init
-T}@T{
-bool
-T}
-T{
-nvidia
-T}@T{
-bool
-T}
-T{
-pull
-T}@T{
-bool
-T}
-T{
-root
-T}@T{
-bool
-T}
-T{
-unshare_ipc
-T}@T{
-bool
-T}
-T{
-unshare_netns
-T}@T{
-bool
-T}
-T{
-unshare_process
-T}@T{
-bool
-T}
-T{
-unshare_devsys
-T}@T{
-bool
-T}
-T{
-unshare_all
-T}@T{
-bool
-T}
-.TE
-.PP
-boolean options default to false if not specified.
-string options can be broken in multiple declarations additively in
-order to improve readability of the file:
+Types legend:
+.IP \[bu] 2
+bool: true or false
+.IP \[bu] 2
+string: a single string, for example
+\f[V]home=\[dq]/home/luca-linux/dbox\[dq]\f[R]
+.IP \[bu] 2
+string_list: multiple strings, for example
+\f[V]additional_packages=\[dq]htop vim git\[dq]\f[R].
+Note that \f[V]string_list\f[R] can be declared multiple times to be
+compounded:
+.RS 2
 .IP
 .nf
 \f[C]
@@ -275,15 +176,174 @@ additional_packages=\[dq]htop iftop iotop\[dq]
 additional_packages=\[dq]zsh fish\[dq]
 \f[R]
 .fi
+.RE
 .PP
-Be aware that if you\[cq]re doing lines with spaces, you need to quote
-them.
-If you\[cq]re doing multiple hooks (init or pre_init) in multiple lines,
-end the line with a semicolon (;) in order to execute them one after the
-other.
+.TS
+tab(@);
+lw(23.3n) lw(23.3n) lw(23.3n).
+T{
+Flag Name
+T}@T{
+Type
+T}@T{
+T}
+_
+T{
+additional_flags
+T}@T{
+string_list
+T}@T{
+Additional flags to pass to the container manager
+T}
+T{
+additional_packages
+T}@T{
+string_list
+T}@T{
+Additional packages to install inside the container
+T}
+T{
+home
+T}@T{
+string
+T}@T{
+Which home directory should the container use
+T}
+T{
+image
+T}@T{
+string
+T}@T{
+Which image should the container use, look here for a list
+T}
+T{
+init_hooks
+T}@T{
+string_list
+T}@T{
+Commands to run inside the container, after the packages setup
+T}
+T{
+pre_init_hooks
+T}@T{
+string_list
+T}@T{
+Commands to run inside the container, before the packages setup
+T}
+T{
+volume
+T}@T{
+string_list
+T}@T{
+Additional volumes to mount inside the containers
+T}
+T{
+exported_apps
+T}@T{
+string_list
+T}@T{
+App names or desktopfile paths to export
+T}
+T{
+exported_bins
+T}@T{
+string_list
+T}@T{
+Binaries to export
+T}
+T{
+exported_bins_path
+T}@T{
+string
+T}@T{
+Optional path where to export binaries (default: $HOME/.local/bin)
+T}
+T{
+entry
+T}@T{
+bool
+T}@T{
+Generate an entry for the container in the app list (default: false)
+T}
+T{
+start_now
+T}@T{
+bool
+T}@T{
+Start the container immediately (default: false)
+T}
+T{
+init
+T}@T{
+bool
+T}@T{
+Specify if this is an initful container (default: false)
+T}
+T{
+nvidia
+T}@T{
+bool
+T}@T{
+Specify if you want to enable NVidia drivers integration (default:
+false)
+T}
+T{
+pull
+T}@T{
+bool
+T}@T{
+Specify if you want to pull the image every time (default: false)
+T}
+T{
+root
+T}@T{
+bool
+T}@T{
+Specify if the container is rootful (default: false)
+T}
+T{
+unshare_ipc
+T}@T{
+bool
+T}@T{
+Specify if the container should unshare the ipc namespace (default:
+false)
+T}
+T{
+unshare_netns
+T}@T{
+bool
+T}@T{
+Specify if the container should unshare the network namespace (default:
+false)
+T}
+T{
+unshare_process
+T}@T{
+bool
+T}@T{
+Specify if the container should unshare the process (pid) namespace
+(default: false)
+T}
+T{
+unshare_devsys
+T}@T{
+bool
+T}@T{
+Specify if the container should unshare /dev (default: false)
+T}
+T{
+unshare_all
+T}@T{
+bool
+T}@T{
+Specify if the container should unshare all the previous options
+(default: false)
+T}
+.TE
 .PP
-For an explanation of each of the option in the list, take a look at the
-distrobox create usage, each option corresponds to one of the
+For further explanation of each of the option in the list, take a look
+at the distrobox create usage, each option corresponds to one of the
 \f[V]create\f[R] flags.
 .PP
 \f[B]Advanced example\f[R]
@@ -334,7 +394,7 @@ exported_bins_path=\[dq]\[ti]/.local/bin\[dq]
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH COMPATIBILITY
 .PP
@@ -501,6 +561,13 @@ quay.io/toolbx/ubuntu-toolbox:20.04 quay.io/toolbx/ubuntu-toolbox:22.04
 quay.io/toolbx/ubuntu-toolbox:latest
 T}
 T{
+Ublue
+T}@T{
+bluefin-cli
+T}@T{
+ghcr.io/ublue-os/bluefin-cli
+T}
+T{
 T}@T{
 T}@T{
 T}
@@ -559,7 +626,6 @@ T}
 T{
 Chainguard Wolfi
 T}@T{
-Small note: sudo is missing, use su-exec instead.
 T}@T{
 cgr.dev/chainguard/wolfi-base:latest
 T}
@@ -809,7 +875,7 @@ up the integration independently from the distrobox\[cq]s own flag.
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-CREATE" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-CREATE" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -847,8 +913,8 @@ usb devices and graphical apps (X11/Wayland), and audio.
 --volume:       additional volumes to add to the container
 --additional-flags/-a:  additional flags to pass to the container manager command
 --additional-packages/-ap:  additional packages to install during initial container setup
---init-hooks:       additional commands to execute during container initialization
---pre-init-hooks:   additional commands to execute prior to container initialization
+--init-hooks:       additional commands to execute at the end of container initialization
+--pre-init-hooks:   additional commands to execute at the start of container initialization
 --init/-I:      use init system (like systemd) inside the container.
             this will make host\[aq]s processes not visible from within the container. (assumes --unshare-process)
             may require additional packages depending on the container image: https://github.com/89luca89/distrobox/blob/main/docs/useful_tips.md#using-init-system-inside-a-distrobox
@@ -1204,7 +1270,7 @@ Void Linux (glibc)
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-ENTER" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-ENTER" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1354,7 +1420,7 @@ run distrobox commands involving rootful containers using `doas'.
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-EPHEMERAL" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-EPHEMERAL" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1426,7 +1492,7 @@ a list of supported environment variables to use.
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-EXPORT" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-EXPORT" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1450,7 +1516,7 @@ will automatically be launched from the container it is exported from.
 .IP
 .nf
 \f[C]
---app/-a:       name of the application to export
+--app/-a:       name of the application to export or absolute path to desktopfile to export
 --bin/-b:       absolute path of the binary to export
 --list-apps:        list applications exported from this container
 --list-binaries     list binaries exported from this container, use -ep to specify custom paths to search
@@ -1494,6 +1560,15 @@ with needed icons, add the prefix
 \f[V]/usr/local/bin/distrobox-enter -n distrobox_name -e ...\f[R] to the
 commands to run, and save them in your home to be used directly from the
 host as a normal app.
+.IP
+.nf
+\f[C]
+distrobox-export --app /opt/application/my-app.desktop
+\f[R]
+.fi
+.PP
+This will skip searching for the desktopfile in canonical paths, and
+just use the provided file path.
 .PP
 \f[B]Binary export example\f[R]
 .IP
@@ -1574,7 +1649,7 @@ option to provide a series of flags, for example:
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-GENERATE-ENTRY" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-GENERATE-ENTRY" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1652,7 +1727,7 @@ distrobox generate-entry container-name --delete
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-HOST-EXEC" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-HOST-EXEC" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1726,7 +1801,7 @@ distrobox-host-exec podman ps -a
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-INIT" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-INIT" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1794,7 +1869,7 @@ distrobox-init --upgrade
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-LIST" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-LIST" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1865,7 +1940,7 @@ DBX_SUDO_PROGRAM
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-RM" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-RM" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -1937,7 +2012,7 @@ DBX_SUDO_PROGRAM
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-STOP" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-STOP" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
@@ -2014,7 +2089,7 @@ DBX_SUDO_PROGRAM
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "DISTROBOX-UPGRADE" "1" "Jun 2024" "Distrobox" "User Manual"
+.TH "DISTROBOX-UPGRADE" "1" "Jul 2024" "Distrobox" "User Manual"
 .hy
 .SH NAME
 .IP
